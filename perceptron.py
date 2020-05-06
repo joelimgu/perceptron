@@ -215,7 +215,98 @@ def print_matrice(m):
             print_saut_de_ligne()
 
 
-# d = structuration_donnees()
+d = structuration_donnees()
 # print_matrice(d[9][2])
 
 
+def init_poids(dim_entree, dim_sortie):
+    random.seed(2)
+    poids = []
+    for d_entree in range(dim_entree):
+        lst = []
+        for d_sortie in range(dim_sortie):
+            lst.append(100*random.random()-50)
+        poids.append(lst)
+    return poids
+
+#poids = init_poids(30,10)
+#print(poids[25])
+
+
+def calcul_neurone(j, e, poids):
+    result = 0
+    for i in range(len(e)): # basically 30 cause weighted 'link' to  neuron for each position
+        # 30x10 ==> premier element = poids de chaque case pour le neurone 1
+        # representer la matrice ==> on prend la colonne j et on itere sur les lignes
+        result += e[i]*poids[i][j]
+        resultat = int(result > 0)
+    return resultat
+
+#print(calcul_neurone(3,d[9][0],poids))
+#print(calcul_neurone(9,d[9][0],poids))
+
+
+def calcul_reseau(e,poids):
+    return [calcul_neurone(neuron, e, poids) for neuron in range(10)]
+
+
+#sortie = calcul_reseau(d[9][0],poids)
+#print(sortie)
+
+
+def apprendre_neurone(e, poids, j, sortie_attendue):
+    h = 5
+    valeur_calculee = calcul_neurone(j, e, poids)
+    for i in range(len(poids)):
+        valeur_desiree = 0
+        if sortie_attendue == j:
+            valeur_desiree = 1
+        poids[i][j] = poids[i][j] + (valeur_desiree - valeur_calculee) * e[i] * h
+    return poids
+
+
+def apprendre_reseau(e, poids, sortie_attendue):
+    for neuron in range(10):
+        apprendre_neurone(e, poids, neuron, sortie_attendue)
+
+
+
+def apprendre(d, poids):
+    for key in d:
+        for number_specific in d[key]:
+            apprendre_reseau(number_specific, poids, key)
+
+
+def saisir_chiffre_matrice():
+    lst = [[0,0,0,0,0],
+           [0,0,0,0,0],
+           [0,0,0,0,0],
+           [0,0,0,0,0],
+           [0,0,0,0,0],
+           [0,0,0,0,0]]
+    ipt = ""
+    print("Please insert binaries to create a number in a 6x5 matrix")
+    for ligne in range(6):
+        for colonne in range(5):
+            lst[ligne][colonne] = eval(input(ipt))
+    return lst
+
+
+nb3a_bruite = [[1,1,1,1,1],
+        [0,0,1,0,1],
+        [0,0,0,0,1],
+        [1,1,1,1,1],
+        [0,0,0,1,1],
+        [1,1,1,1,1]]
+
+def main():
+    d = structuration_donnees()
+    poids_neurones = init_poids(30, 10)
+    for i in range(1000):
+        apprendre(d, poids_neurones)
+    # entree = saisir_chiffre_matrice()
+    flat_input = flatten_matrice(nb3a_bruite)
+    output = calcul_reseau(flat_input,poids_neurones)
+    print(output)
+
+main()
