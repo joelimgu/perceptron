@@ -1,4 +1,6 @@
 from numpy import random
+from random import randint
+import os
 
 nb0a = [[1,1,1,1,1],
         [1,0,0,0,1],
@@ -288,25 +290,49 @@ def saisir_chiffre_matrice():
     print("Please insert binaries to create a number in a 6x5 matrix")
     for ligne in range(6):
         for colonne in range(5):
-            lst[ligne][colonne] = eval(input(ipt))
+            while True:
+                try:
+                    ipt = input()
+                    if ipt != '1' and ipt != '0':
+                        raise ValueError
+                except:
+                    print('Only binaries are accepted',end='\ ')
+                    print('Please start again')
+                else:
+                    lst[ligne][colonne] = eval(ipt)
+                    break
     return lst
 
 
-nb3a_bruite = [[1,1,1,1,1],
-        [0,0,1,0,1],
-        [0,0,0,0,1],
-        [1,1,1,1,1],
-        [0,0,0,1,1],
-        [1,1,1,1,1]]
+def generate_matrix_number(dictionnary):
+    print('Please enter a number between or equal to 0 and 9')
+    while True:
+        try:
+            number = input()
+            if len(number) > 1:
+                raise ValueError
+        except:
+            print('Please enter a number between or equal to 0 and 9')
+        else:
+            rand = randint(0, len(dictionnary[eval(number)])-1)
+            return dictionnary[eval(number)][rand]
+
+
+def noise(matrice):
+    rand = randint(0,29)
+    if matrice[rand] == 1:
+        matrice[rand] = 0
+    else:
+        matrice[rand] = 1
+    return matrice
+
 
 def main():
     d = structuration_donnees()
     poids_neurones = init_poids(30, 10)
-    for i in range(1000):
+    print('Learning...')
+    for i in range(5000):
         apprendre(d, poids_neurones)
-    # entree = saisir_chiffre_matrice()
-    flat_input = flatten_matrice(nb3a_bruite)
-    output = calcul_reseau(flat_input,poids_neurones)
+    flat_input = noise(generate_matrix_number(d))
+    output = calcul_reseau(flat_input, poids_neurones)
     print(output)
-
-main()
